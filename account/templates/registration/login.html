@@ -1,0 +1,50 @@
+{% extends 'basic.html' %}
+{% block content %}
+<section class="my-auto bg-image"
+    style="background-image: url('https://previews.123rf.com/images/apinan/apinan1408/apinan140800023/31041341-internet-technology-online-business-background.jpg?fj=1');">
+    <div class="py-5">
+        <div style="border-radius: 50px; width: 35%;" class="mx-auto bg-white p-5">
+
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="">
+                    <ul class="form-wrapper">
+                        <li class="mb-4 ">
+                            <label for="#id_username" class="form-label">Email</label>
+                            {{form.username}}
+                        </li>
+                        <li>
+
+                            <label for="#id_password">Password</label>
+
+                            {{form.password}}
+
+
+                        </li>
+                    </ul>
+
+                </div>
+                <div class="row mb-4">
+                    <div class="col d-flex justify-content-center">
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" checked />
+                            <label class="form-check-label"> Remember me </label>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <a href="#!">Forgot password?</a>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-100 btn btn-primary btn-block mb-4 mx-auto">Sign in</button>
+
+                <div class="text-center">
+                    <p>Not a member? <a href="{% url 'signup' %}">register here</a>
+
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

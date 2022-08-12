@@ -1,0 +1,50 @@
+{% extends 'basic.html' %}
+{% block style %}
+
+<style>
+    #pass {
+        display: none;
+    }
+
+    #private:checked~#pass {
+        display: unset;
+    }
+
+    input {
+        margin-bottom: 10px;
+    }
+
+    #room-name-input {
+        width: 255px;
+    }
+
+    .w-30 {
+        width: 700px;
+    }
+</style>
+
+{% endblock %}
+{% block content %}
+<div style="text-align: center;margin: 40px;">
+    <div class="border py-5 border-2 w-30 mx-auto">
+        <h3>
+            What chat room would you like to enter?<br>
+        </h3>
+        <form action="{% url 'room2' %}" method="get">
+
+            <input id="private" type="radio" name="room-type" value="private" required>private
+            <input type="radio" name="room-type" value="public" required>public
+            <input type="radio" name="room-type" value="user" required>Single user<br>
+
+            <input id="room-name-input" name="room-name" type="text" size="100" placeholder="room_name/user_name"><br>
+
+            <input type="password" id="pass" name="password" placeholder="password"><br>
+            <input id="room-name-submit" class="btn btn-primary" type="submit">
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+</script>
+{% endblock %}

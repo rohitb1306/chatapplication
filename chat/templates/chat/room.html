@@ -1,0 +1,164 @@
+{% extends 'basic.html' %}
+{% block style %}
+<style>
+    #cke_chat-message-input {
+        width: 64rem;
+    }
+
+    #cke_1_contents {
+        height: 100px !important;
+    }
+
+    .align {
+        margin-left: 57.3rem;
+    }
+
+    h1 {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+{% block content%}
+{% if room.is_single_user %}
+{% if room.from_user == user.username %}
+<h1>
+    {{room.to_user}}
+</h1>
+{% elif room.to_user == user.username %}
+<h1>{{room.to_user}}</h1>
+{% endif %}
+
+<a href="{% url 'deleteroom' room.id %}" class="text-decoration-none"><button
+        class="btn btn-danger align">Delete</button></a>
+{% else %}
+<h1>{{room.name}}</h1>
+{% if room.from_user == user.username %}
+<a href="{% url 'deleteroom' room.id %}" class="text-decoration-none"><button
+        class="btn btn-danger align">Delete</button></a>
+{% endif %}
+{% endif %}
+
+<div class="d-flex flex-column" style="align-items:center;">
+    <div id="chat-log" cols="100" rows="20" class="border" style="width:64rem ;height: 40rem; overflow: scroll;">
+        {% for i in messages1 %}
+        <h5 class="text-capitalize">
+
+            {{i.from_user}}
+        </h5>
+        <p class="mx-5">
+
+            {{i.chat_message|safe}}
+        </p>
+        {% endfor %}
+    </div><br>
+    {% if user.is_authenticated %}
+    <input id="chat-user-in" type="text" value="{{user.username}}"
+        style="margin-right:766px !important; margin-bottom: 10px;" disabled>
+    <!-- <input id="chat-message-input" type="text" size="100" style="width: 53.5%;"><br> -->
+
+    {{form.as_p}}
+    <input id="chat-message-submit" type="button" class="btn btn-primary mb-4" value="Send">
+
+    {{ room_name|json_script:"room-name" }}
+    {% else %}
+    please login for chatting
+
+    <a class="nav-link" href="{% url 'login' %}">LogIn</a>
+
+    {% endif %}
+</div>
+<!-- <script src="https://cdn.ckeditor.com/ckeditor5/35.0.1/classic/ckeditor.js"></script> -->
+<!-- <script src="https://cdn.ckeditor.com/4.19.1/standard/ckeditor.js"></script> -->
+<script src="https://cdn.ckeditor.com/4.19.1/full/ckeditor.js"></script>
+{% endblock %}
+{% block script %}
+<script>
+
+
+    const textarea = document.getElementById('chat-log');
+    const btn = document.getElementById('chat-message-submit')
+    textarea.scrollTop = textarea.scrollHeight;
+
+    btn.addEventListener('click', () => {
+        setTimeout(() => {
+            textarea.scrollTop = textarea.scrollHeight;
+        }, 20)
+    })
+
+    const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chat/'
+        + roomName
+        + '/'
+    );
+
+    chatSocket.onmessage = function (e) {
+        console.log(e);
+        const data = JSON.parse(e.data);
+
+        textarea.innerHTML += (`
+        <h5 class="text-capitalize">${data.user}</h5>
+        <p class="mx-5">${data.message}</p>
+        `);
+
+        setTimeout(() => {
+            textarea.scrollTop = textarea.scrollHeight;
+        }, 20)
+
+    };
+
+    chatSocket.onclose = function (e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('#chat-message-input').focus();
+    document.querySelector('#chat-message-input').onkeyup = function (e) {
+        if (e.keyCode === 13) {  // enter, return
+            document.querySelector('#chat-message-submit').click();
+        }
+    };
+
+    const editor = CKEDITOR.replace('chat', {
+        toolbarGroups: [
+
+            {
+                "name": "basicstyles",
+                "groups": ["basicstyles"]
+            },
+            {
+                "name": 'insert',
+                "groups": ["smiley"]
+
+            }
+        ],
+        removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar,PasteFromWord,HorizontalRule,PageBreak,Iframe,Table'
+
+    });
+    const cmi = document.getElementById('chat-message-input')
+    editor.on('change', function (e) {
+        cmi.value = e.editor.getData();
+    });
+
+
+    document.querySelector('#chat-message-submit').onclick = function (e) {
+        const messageuser = document.querySelector('#chat-user-in');
+        const message = cmi.value;
+        console.log(message, cmi);
+        const user = messageuser.value;
+        const sendObj = {
+            message,
+            user, roomName
+        }
+
+        chatSocket.send(JSON.stringify(sendObj));
+        cmi.value = '';
+    };
+
+</script>
+{% endblock %}
+</body>
+
+</html>

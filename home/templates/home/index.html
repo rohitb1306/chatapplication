@@ -1,0 +1,58 @@
+{% extends 'basic.html' %}
+{% block content %}
+<h1 style="text-align:center;text-decoration: underline;">Your Chats</h1>
+<ul class="list-group">
+
+    {% for i in page_obj %}
+    <li class="list-group-item"><a href="chat/room1/{{i.name}}" class="text-decoration-none">
+            {% if i.from_user == user.username %}
+            {{i.to_user}}
+            {% elif i.to_user == user.username %}
+            {{i.from_user}}
+            {% endif %}
+            <br>
+        </a></li>
+
+    {% endfor %}
+</ul>
+<h1 style="text-align:center;text-decoration: underline;">PUBlIC ROOMS</h1>
+<ul class="list-group">
+
+    {% for i in room_public|slice:"0:8" %}
+    <li class="list-group-item"><a href="chat/room1/{{i.name}}" class="text-decoration-none">
+            {{i.name}}<br>
+        </a></li>
+
+    {% endfor %}
+</ul>
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+
+
+        {% if page_obj.has_previous %}
+
+        <li class="page-item "><a class="page-link" href="?page=1">&laquo</a></li>
+        <li class="page-item"><a class="page-link"
+                href="?page={{page_obj.previous_page_number}}">{{page_obj.previous_page_number}}
+            </a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">&laquo</a></li>
+        </a></li>
+        {% endif %}
+        <li class="page-item"><a class="page-link" href="?page={{page_obj.number}}">{{page_obj.number}}
+            </a></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link"
+                href="?page={{page_obj.next_page_number}}">{{page_obj.next_page_number}}
+            </a></li>
+        <li class="page-item "><a class="page-link" href="?page={{page_obj.paginator.num_pages}}">&raquo</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">
+                &raquo</a>
+        </li>
+        {% endif %}
+
+    </ul>
+</nav>
+{% endblock %}
