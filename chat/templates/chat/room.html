@@ -16,9 +16,26 @@
     h1 {
         text-align: center;
     }
+
+    .chat-div p {
+        background-color: #0000ff;
+        padding: 5px 10px;
+        color: #fff;
+        border-radius: 10px;
+        
+    }
+    a{
+        text-decoration: none;
+        color:#fff
+    }
+
+    .align-end-custom {
+        align-items: flex-end;
+    }
 </style>
 {% endblock %}
 {% block content%}
+{{ request.user.username|json_script:"user_name" }}
 {% if room.is_single_user %}
 {% if room.from_user == user.username %}
 <h1>
@@ -41,14 +58,27 @@
 <div class="d-flex flex-column" style="align-items:center;">
     <div id="chat-log" cols="100" rows="20" class="border" style="width:64rem ;height: 40rem; overflow: scroll;">
         {% for i in messages1 %}
-        <h5 class="text-capitalize">
+        {% if i.from_user.username == user.username %}
+        <div class="msg_container d-flex flex-column gap-2 align-end-custom">
 
-            {{i.from_user}}
-        </h5>
-        <p class="mx-5">
+            <h5 class="text-capitalize">
+                {{i.from_user}}
+            </h5>
+            <div class="chat-div" style="width: fit-content;">
+                {{i.chat_message|safe}}
+            </div>
+        </div>
+        {% else %}
+        <div class="msg_container d-flex flex-column gap-2">
 
-            {{i.chat_message|safe}}
-        </p>
+            <h5 class="text-capitalize">
+                {{i.from_user}}
+            </h5>
+            <div class="chat-div ms-1" style="width: fit-content;">
+                {{i.chat_message|safe}}
+            </div>
+        </div>
+        {% endif %}
         {% endfor %}
     </div><br>
     {% if user.is_authenticated %}
@@ -98,11 +128,21 @@
     chatSocket.onmessage = function (e) {
         console.log(e);
         const data = JSON.parse(e.data);
+        console.log(data.user);
+        const user_name = JSON.parse(document.getElementById('user_name').textContent);
 
-        div.innerHTML += (`
-        <h5 class="text-capitalize">${data.user}</h5>
-        <p class="mx-5">${data.message}</p>
-        `);
+        if (user_name == data.user)
+            div.innerHTML += (`<div class="msg_container d-flex flex-column gap-2 align-end-custom">
+            <h5 class="text-capitalize">${data.user}</h5>
+            <div class="chat-div" style="width: fit-content;">${data.message}
+            </div></div>
+            `);
+        else
+            div.innerHTML += (`<div class="msg_container d-flex flex-column gap-2 ">
+            <h5 class="text-capitalize">${data.user}</h5>
+            <div class="chat-div" style="width: fit-content;">${data.message}
+            </div></div>
+            `);
 
         setTimeout(() => {
             div.scrollTop = div.scrollHeight;
@@ -132,6 +172,10 @@
                 "name": 'insert',
                 "groups": ["smiley"]
 
+            },
+            {
+                "name": "links",
+                "group": ["links"]
             }
         ],
         removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar,PasteFromWord,HorizontalRule,PageBreak,Iframe,Table'
