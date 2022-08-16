@@ -4,7 +4,7 @@
 <ul class="list-group">
 
     {% for i in page_obj %}
-    <li class="list-group-item"><a href="chat/room1/{{i.name}}" class="text-decoration-none">
+    <li class="list-group-item text-capitalize"><a href="chat/room1/{{i.name}}" class="text-decoration-none">
             {% if i.from_user == user.username %}
             {{i.to_user}}
             {% elif i.to_user == user.username %}
@@ -19,7 +19,7 @@
 <ul class="list-group">
 
     {% for i in room_public|slice:"0:8" %}
-    <li class="list-group-item"><a href="chat/room1/{{i.name}}" class="text-decoration-none">
+    <li class="list-group-item text-capitalize"><a href="chat/room1/{{i.name}}" class="text-decoration-none">
             {{i.name}}<br>
         </a></li>
 

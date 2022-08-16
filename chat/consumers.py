@@ -1,14 +1,14 @@
 
 import json
-from channels.generic.websocket import WebsocketConsumer,AsyncWebsocketConsumer
-from asgiref.sync import async_to_sync
+from channels.generic.websocket import AsyncWebsocketConsumer #,WebsocketConsumer
+# from asgiref.ssync import async_to_sync
 from channels.db import database_sync_to_async
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from . models import Message,Room
 
-from cgitb import text
+# from cgitb import text
 
 
 # class ChatConsumer(WebsocketConsumer):
@@ -88,8 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         
         message = text_data_json['message']
-        user=text_data_json['user']
-
+        user=self.scope['user'].username
         room=await database_sync_to_async(Room.objects.get)(name=text_data_json['roomName'])
         user1=await database_sync_to_async(User.objects.get)(username=user)
         msg=Message(
@@ -98,7 +97,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 from_user=user1
                 )
         await database_sync_to_async(msg.save)()
-        print(text_data_json)
+        
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -112,8 +111,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message = event['message']
         user = event['user']
-        # await print(Message.objects.all())
-        # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'message': message, 
             'user': user

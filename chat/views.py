@@ -52,6 +52,7 @@ class Room2(View):
                     return redirect('room',chat_name)
                 else:
                     messages.warning(request,'wrong password for the existing room')
+                    return redirect('chatindex')
             elif chat_type=='public':
                 return redirect('room',chat_name) 
         elif User.objects.filter(username=chat_name).exists():
@@ -81,22 +82,6 @@ class Room2(View):
                 return redirect('chatindex')
     
 
-# def room(request, room_name):
-#     # save_message(room_name)
-#     messages=[]
-#     room1=Room.objects.filter(name=room_name).first()
-#     if room1:
-#         messages=Message.objects.filter(room_name=room1)
-#         return render(request, 'chat/room.html', {
-#                 'room_name': room_name,'messages1':messages
-#             })
-#     else:
-#         room=Room(name=room_name)
-#         room.save()
-#         return render(request,'chat/room.html', {
-#                 'room_name': room_name,'messages1':messages
-#             })
-    
 class Deleteroom(View):
     def get(self,request,room_id):
         room=Room.objects.get(id=room_id)
