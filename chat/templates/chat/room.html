@@ -75,13 +75,13 @@
 <script>
 
 
-    const textarea = document.getElementById('chat-log');
+    const div = document.getElementById('chat-log');
     const btn = document.getElementById('chat-message-submit')
-    textarea.scrollTop = textarea.scrollHeight;
+    div.scrollTop = div.scrollHeight;
 
     btn.addEventListener('click', () => {
         setTimeout(() => {
-            textarea.scrollTop = textarea.scrollHeight;
+            div.scrollTop = div.scrollHeight;
         }, 20)
     })
 
@@ -99,13 +99,13 @@
         console.log(e);
         const data = JSON.parse(e.data);
 
-        textarea.innerHTML += (`
+        div.innerHTML += (`
         <h5 class="text-capitalize">${data.user}</h5>
         <p class="mx-5">${data.message}</p>
         `);
 
         setTimeout(() => {
-            textarea.scrollTop = textarea.scrollHeight;
+            div.scrollTop = div.scrollHeight;
         }, 20)
 
     };
@@ -146,7 +146,6 @@
     document.querySelector('#chat-message-submit').onclick = function (e) {
         const messageuser = document.querySelector('#chat-user-in');
         const message = cmi.value;
-        console.log(message, cmi);
         const user = messageuser.value;
         const sendObj = {
             message,
@@ -154,7 +153,7 @@
         }
 
         chatSocket.send(JSON.stringify(sendObj));
-        cmi.value = '';
+        document.querySelector('.cke_wysiwyg_frame').contentDocument.body.innerHTML = ""
     };
 
 </script>

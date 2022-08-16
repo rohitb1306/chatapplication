@@ -19,7 +19,7 @@ class Rooms(View):
         if room1.is_single_user:
             if request.user.username==room1.from_user or request.user.username==room1.to_user:
                 
-                message=Message.objects.filter(room_name=room1).order_by('-message_arrival_time')
+                message=Message.objects.filter(room_name=room1).order_by('message_arrival_time')
                 return render(request, 'chat/room.html', {
                             'room_name': room_name,'messages1':message,'form':chatform,'room':room1
                         })
@@ -27,7 +27,7 @@ class Rooms(View):
                 messages.warning(request,"cannot see others personal message")
                 return redirect('/')
         else:
-            message=Message.objects.filter(room_name=room1).order_by('-message_arrival_time')
+            message=Message.objects.filter(room_name=room1).order_by('message_arrival_time')
             return render(request, 'chat/room.html', {
                             'room_name': room_name,'messages1':message,'form':chatform,'room':room1
                         })
