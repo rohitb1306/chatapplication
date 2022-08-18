@@ -126,13 +126,16 @@ class Rooms(View):
             for i in all_users_inroom:
                 lst.append(i.user.username)
             user_approval=Room_users.objects.filter(room=room2,join_request_approved=False)
-
-            for i in message:
+            lst1=[]
+            for i in all_users_inroom:
+                lst1.append(i.user)
+            if request.user in lst1 :
+                for i in message:
                     room_user=Room_users.objects.filter(room=room2,user=request.user).first()
                     msg_seen=SeenMessages.objects.filter(message_seen=i,message_in_room=room2)
                     room_users=Room_users.objects.filter(room=room2)
-                    # print(room_user)
-                    # print(SeenMessages.objects.filter(message_seen=i,message_in_room=room2,users_in_room=room_user),i)
+                        # print(room_user)
+                        # print(SeenMessages.objects.filter(message_seen=i,message_in_room=room2,users_in_room=room_user),i)
                     if SeenMessages.objects.filter(message_seen=i,message_in_room=room2,users_in_room=room_user):
                         if len(msg_seen) == len(room_users):
                             i.message_seen = True
@@ -142,7 +145,7 @@ class Rooms(View):
                             message_seen=i,
                             users_in_room=room_user,
                             message_in_room=room2
-                        )
+                            )
                         msg_seen1.save()
             return render(
                 request,
@@ -230,7 +233,7 @@ class Room2(View):
                 room.save()
                 room = Room.objects.get(name=chat_name)
                 user_in_room = Room_users(
-                    room=room, user=request.user, is_admin=True
+                    room=room, user=request.user, is_admin=True,join_request_approved=True
                 )
                 user_in_room.save()
                 return redirect("room", chat_name)
@@ -247,7 +250,9 @@ class Deleteroom(View):
         room_user_obj = Room_users.objects.filter(
             is_admin=True, room=room
         )
-        if request.user in room_user_obj:
+        lst=[i.user for i in room_user_obj]
+        
+        if request.user in lst:
             room.delete()
             messages.success(request, "room deleted")
             return redirect("/")
@@ -273,11 +278,14 @@ class Addmember1(View):
         )
         if room_user_obj:
             for user in str.split(","):
+                if User.objects.filter(username=user).exists():
+                    user_obj = User.objects.get(username=user)
+                    room_user = Room_users(room=room_obj, user=user_obj)
+                    room_user.save()
+                    messages.success(request, f"added user {user} to room")
 
-                user_obj = User.objects.get(username=user)
-                room_user = Room_users(room=room_obj, user=user_obj)
-                room_user.save()
-            messages.success(request, "added users to room")
+                else:
+                    messages.warning(request,f'username {user} does not exists')
             return redirect("room", room_obj.name)
         else:
             return redirect("room", room_obj.name)
@@ -292,13 +300,18 @@ class Deletemember(View):
         )
         if room_user_obj:
             for user in user_str.split(","):
-                user_obj = User.objects.get(username=user)
-                room_user_toremove = Room_users.objects.get(
-                    user=user_obj, room=room_obj
-                )
-                room_user_toremove.delete()
-                messages.success(request, "removed user")
-                return redirect("room", room_obj.name)
+                user_obj=User.objects.filter(username=user).first()
+                if Room_users.objects.filter(user=user_obj).exists():
+                    user_obj1 = User.objects.get(username=user)
+                    room_user_toremove = Room_users.objects.get(
+                        user=user_obj1, room=room_obj
+                    )
+                    room_user_toremove.delete()
+                    messages.success(request, f"removed user {user}")
+
+                else:
+                    messages.warning(request,f'username {user} does not exists in this room')
+            return redirect("room", room_obj.name)
         else:
             return redirect("room", room_obj.name)
 

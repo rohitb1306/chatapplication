@@ -110,47 +110,48 @@
     <div class="col-2"></div>
     <div id="chat-log" cols="100" rows="20" class="border col-7"
         style="width:64rem ;height: 40rem; overflow-y: scroll;align-items:center;">
-        {% for i in messages1 %}
-        {% if i.from_user.username == user.username %}
-        <div class="msg_container d-flex flex-column gap-2 align-end-custom">
+        
+            {% for i in messages1 %}
+            {% if i.from_user.username == user.username %}
+            <div class="msg_container d-flex flex-column gap-2 align-end-custom">
 
-            <h5 class="text-capitalize">
+                <h5 class="text-capitalize">
 
-                {{i.from_user}}
-            </h5>
-            {% if i.message_seen %}
-            <!-- <div class="d-flex "> -->
+                    {{i.from_user}}
+                </h5>
+                {% if i.message_seen %}
+                <!-- <div class="d-flex "> -->
 
-            <div class="d-flex justify-content-between align-items-end">
-                <div class="d-flex chat-div flex-column" style="width: fit-content;">
-                    {{i.chat_message|safe}}
+                <div class="d-flex justify-content-between align-items-end">
+                    <div class="d-flex chat-div flex-column" style="width: fit-content;">
+                        {{i.chat_message|safe}}
+                    </div>
+                    <i class="fa-solid fa-check-double text-primary mx-2" style="margin-bottom: 1rem; "></i>
                 </div>
-                <i class="fa-solid fa-check-double text-primary mx-2" style="margin-bottom: 1rem; "></i>
+                <!-- </div> -->
+                {% else %}
+                <div class="d-flex justify-content-between align-items-end">
+                    <div class="chat-div d-flex flex-column" style="width: fit-content;">
+                        {{i.chat_message|safe}}
+                    </div>
+                    <i class="fa-solid fa-check-double mx-2" style="margin-bottom: 1rem;"></i>
+                </div>
+
+                {% endif %}
             </div>
-            <!-- </div> -->
             {% else %}
-            <div class="d-flex justify-content-between align-items-end">
-                <div class="chat-div d-flex flex-column" style="width: fit-content;">
+            <div class="msg_container d-flex flex-column gap-2">
+
+                <h5 class="text-capitalize">
+
+                    {{i.from_user}}
+                </h5>
+                <div class="chat-div-other ms-1 d-flex flex-column" style="width: fit-content;">
                     {{i.chat_message|safe}}
                 </div>
-                <i class="fa-solid fa-check-double mx-2" style="margin-bottom: 1rem;"></i>
             </div>
-
             {% endif %}
-        </div>
-        {% else %}
-        <div class="msg_container d-flex flex-column gap-2">
-
-            <h5 class="text-capitalize">
-
-                {{i.from_user}}
-            </h5>
-            <div class="chat-div-other ms-1 d-flex flex-column" style="width: fit-content;">
-                {{i.chat_message|safe}}
-            </div>
-        </div>
-        {% endif %}
-        {% endfor %}
+            {% endfor %}
 
     </div>
     <div class="col-2 member-list" id="member-list" style="height:40rem;overflow-y:scroll">
