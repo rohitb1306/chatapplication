@@ -18,7 +18,15 @@
     }
 
     .chat-div p {
-        background-color: #0000ff;
+        background-color: #05740b;
+        padding: 5px 10px;
+        color: #fff;
+        border-radius: 10px;
+
+    }
+
+    .chat-div-other p {
+        background-color: #1118e6;
         padding: 5px 10px;
         color: #fff;
         border-radius: 10px;
@@ -37,56 +45,203 @@
     h1 {
         text-transform: capitalize;
     }
+
+    .gap-51 {
+
+        gap: 51.5rem !important;
+
+    }
+
+    .col-3 {
+        flex: 0 0 auto;
+        width: 22.5%;
+    }
+
+    .col-2 {
+        flex: 0 0 auto;
+        width: 21.666667%;
+    }
+
+    .gap-custom {
+        gap: 27px !important;
+    }
+
+    .member-list,
+    .accept-request {
+        display: none;
+    }
+
+    .member-list-on,
+    .accept-request-on {
+        display: unset;
+    }
+    .ms-5 {
+        margin-left: 4rem!important;
+    }
 </style>
 {% endblock %}
 {% block content%}
 {{ request.user.username|json_script:"user_name" }}
 {% if room.is_single_user %}
-{% if room.from_user == user.username %}
-<h1>
-    {{room.to_user}}
-</h1>
-{% elif room.to_user == user.username %}
-<h1>{{room.from_user}}</h1>
+{% for i in room_user %}
+{% if i.user != user %}
+<div class="d-flex align-items-center flex-column">
+    <h1>{{i.user}}<h1>
+        <a href="{% url 'deleteroom' room.id %}" class="text-decoration-none">
+            <button class="btn btn-danger">Delete</button></a>
+</div>
 {% endif %}
-
-<a href="{% url 'deleteroom' room.id %}" class="text-decoration-none"><button
-        class="btn btn-danger align">Delete</button></a>
+{% endfor %}
 {% else %}
-<h1>{{room.name}}</h1>
-{% if room.from_user == user.username %}
-<a href="{% url 'deleteroom' room.id %}" class="text-decoration-none"><button
-        class="btn btn-danger align">Delete</button></a>
-{% endif %}
+<div class="d-flex justify-content-center align-items-center">
+    <a href="javascript:void()" id="member-list-click" class="text-decoration-none text-dark">
+    <div class="d-flex justify-content-center align-items-center gap-51 border " style="width:64rem ;">
+        <h1 style="">{{room.name}}</h1>
+        <h5>{{all_users_inroom|length}}</h5>
+    </div>
+    </a>
+</div>
+
+
+
 {% endif %}
 
-<div class="d-flex flex-column" style="align-items:center;">
-    <div id="chat-log" cols="100" rows="20" class="border" style="width:64rem ;height: 40rem; overflow-y: scroll;">
+<div class="row gap-custom g-0">
+    <div class="col-2"></div>
+    <div id="chat-log" cols="100" rows="20" class="border col-7"
+        style="width:64rem ;height: 40rem; overflow-y: scroll;align-items:center;">
         {% for i in messages1 %}
         {% if i.from_user.username == user.username %}
         <div class="msg_container d-flex flex-column gap-2 align-end-custom">
 
             <h5 class="text-capitalize">
+
                 {{i.from_user}}
             </h5>
-            <div class="chat-div" style="width: fit-content;">
-                {{i.chat_message|safe}}
+            {% if i.message_seen %}
+            <!-- <div class="d-flex "> -->
+
+            <div class="d-flex justify-content-between align-items-end">
+                <div class="d-flex chat-div flex-column" style="width: fit-content;">
+                    {{i.chat_message|safe}}
+                </div>
+                <i class="fa-solid fa-check-double text-primary mx-2" style="margin-bottom: 1rem; "></i>
             </div>
+            <!-- </div> -->
+            {% else %}
+            <div class="d-flex justify-content-between align-items-end">
+                <div class="chat-div d-flex flex-column" style="width: fit-content;">
+                    {{i.chat_message|safe}}
+                </div>
+                <i class="fa-solid fa-check-double mx-2" style="margin-bottom: 1rem;"></i>
+            </div>
+
+            {% endif %}
         </div>
         {% else %}
         <div class="msg_container d-flex flex-column gap-2">
 
             <h5 class="text-capitalize">
+
                 {{i.from_user}}
             </h5>
-            <div class="chat-div ms-1" style="width: fit-content;">
+            <div class="chat-div-other ms-1 d-flex flex-column" style="width: fit-content;">
                 {{i.chat_message|safe}}
             </div>
         </div>
         {% endif %}
         {% endfor %}
-    </div><br>
-    {% if user.is_authenticated %}
+
+    </div>
+    <div class="col-2 member-list" id="member-list" style="height:40rem;overflow-y:scroll">
+        <div>
+            <h1>users in Group</h1>
+            <ul class="list-group my-2">
+                {% if room.is_private_group %}
+                {% for i in all_users_inroom %}
+                <li class="list-group-item text-capitalize">{{i.user}}</li>
+                {% endfor %}
+                {% else %}
+                {% for i in all_users_inroom %}
+                <li class="list-group-item text-capitalize">{{i}}</li>
+                {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+        <div class="d-flex justify-content-center gap-2 ">
+            {% if room_user.user == user %}
+
+            <a href="{% url 'deleteroom' room.id %}" class="text-decoration-none"><button class="btn btn-danger">Delete
+                    room</button></a>
+            {% if room.is_private_group %}
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addmember">
+                Add member
+            </button>
+            {% else %}
+            <button type="button" id="accept-request" class="btn btn-primary">Accept request</button>
+            {% endif %}
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletemember">
+                Remove member
+            </button>
+            {% endif %}
+        </div>
+
+        <div id="requests" class="accept-request">
+            <h1>User requests</h1>
+            <ul class="list-group my-2">
+                {% for i in user_approval %}
+                <li class="list-group-item text-capitalize">
+                    {{i.user}}
+                    <a class="text-decoration-none ms-5" href="{% url 'public-room-approve-request' room.id i.user.id %}"><button class="btn btn-primary ms-5" type="button">approve request</button></a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+</div>
+<div class="d-flex align-items-center justify-content-center flex-column">
+    {% if room.is_private_group %}
+    <input id="chat-user-in" type="text" value="{{user.username}}"
+        style="margin-right:766px !important; margin-bottom: 10px;" disabled>
+    <!-- <input id="chat-message-input" type="text" size="100" style="width: 53.5%;"><br> -->
+
+    {{form.as_p}}
+    <input id="chat-message-submit" type="button" class="btn btn-primary mb-4" value="Send">
+
+    {{ room_name|json_script:"room-name" }}
+    {% elif room.is_single_user %}
+    <input id="chat-user-in" type="text" value="{{user.username}}"
+        style="margin-right:766px !important; margin-bottom: 10px;" disabled>
+    <!-- <input id="chat-message-input" type="text" size="100" style="width: 53.5%;"><br> -->
+
+    {{form.as_p}}
+    <input id="chat-message-submit" type="button" class="btn btn-primary mb-4" value="Send">
+
+    {{ room_name|json_script:"room-name" }}
+    {% else %}
+    {% if user.username in all_users_inroom %}
+
+    <input id="chat-user-in" type="text" value="{{user.username}}"
+        style="margin-right:766px !important; margin-bottom: 10px;" disabled>
+    <!-- <input id="chat-message-input" type="text" size="100" style="width: 53.5%;"><br> -->
+
+    {{form.as_p}}
+    <input id="chat-message-submit" type="button" class="btn btn-primary mb-4" value="Send">
+
+    {{ room_name|json_script:"room-name" }}
+    
+    {% else %}
+    
+    <a href="{% url 'public-room-join-request' room.id %}" id="join-group" class="text-decoration-none"><button type="button" class="btn btn-info">Send request to
+            join</button></a>
+    {% comment %} {% endif %} {% endcomment %}
+    {% endif %}
+    {% endif %}
+
+
+    {% comment %}
+     {% if user.is_authenticated %}
     <input id="chat-user-in" type="text" value="{{user.username}}"
         style="margin-right:766px !important; margin-bottom: 10px;" disabled>
     <!-- <input id="chat-message-input" type="text" size="100" style="width: 53.5%;"><br> -->
@@ -101,10 +256,52 @@
     <a class="nav-link" href="{% url 'login' %}">LogIn</a>
 
     {% endif %}
+     {% endcomment %}
 </div>
 <!-- <script src="https://cdn.ckeditor.com/ckeditor5/35.0.1/classic/ckeditor.js"></script> -->
 <!-- <script src="https://cdn.ckeditor.com/4.19.1/standard/ckeditor.js"></script> -->
 <script src="https://cdn.ckeditor.com/4.19.1/full/ckeditor.js"></script>
+<!-- Modal -->
+
+<div class="modal fade" id="addmember" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add user to Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'add-member-select' room.id  %}" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="userlist" style="width:29rem; margin-bottom:10px;"
+                        placeholder="Enter name of users seprated by , that you want to add">
+
+                    <button type="submit" class="btn btn-primary" style="float:right;">Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deletemember" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Remove users from group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'delete-member-select' room.id  %}" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="userlist" style="width:29rem; margin-bottom:10px;"
+                        placeholder="Enter name of users seprated by , that you want to remove">
+
+                    <button type="submit" class="btn btn-primary" style="float:right;">Remove</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 {% block script %}
 <script>
@@ -139,10 +336,11 @@
         if (user_name == data.user)
             div.innerHTML += (`<div class="msg_container d-flex flex-column gap-2 align-end-custom">
             <h5 class="text-capitalize">${data.user}</h5>
-            <div class="chat-div" style="width: fit-content;">${data.message}
+            <div class="chat-div d-flex" style="width: fit-content;">${data.message}<i class="fa-solid fa-check-double" style=" margin-top:15px;"></i>
             </div></div>
             `);
         else
+
             div.innerHTML += (`<div class="msg_container d-flex flex-column gap-2 ">
             <h5 class="text-capitalize">${data.user}</h5>
             <div class="chat-div" style="width: fit-content;">${data.message}
@@ -204,6 +402,16 @@
         chatSocket.send(JSON.stringify(sendObj));
         document.querySelector('.cke_wysiwyg_frame').contentDocument.body.innerHTML = ""
     };
+
+    document.querySelector('#member-list-click').onclick = function (e) {
+        document.getElementById('member-list').classList.toggle('member-list')
+        document.getElementById('member-list').classList.toggle('member-list-on')
+    }
+
+    document.querySelector('#accept-request').onclick = function (e) {
+        document.getElementById('requests').classList.toggle('accept-request')
+        document.getElementById('requests').classList.toggle('accept-request-on')
+    }
 
 </script>
 {% endblock %}

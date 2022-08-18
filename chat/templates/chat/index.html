@@ -2,13 +2,7 @@
 {% block style %}
 
 <style>
-    #pass {
-        display: none;
-    }
-
-    #private:checked~#pass {
-        display: unset;
-    }
+    
 
     input {
         margin-bottom: 10px;
@@ -32,13 +26,11 @@
         </h3>
         <form action="{% url 'room2' %}" method="get">
 
-            <input id="private" type="radio" name="room-type" value="private" required>private
+            <input type="radio" name="room-type" value="private" required>private group
             <input type="radio" name="room-type" value="public" required>public
             <input type="radio" name="room-type" value="user" required>Single user<br>
 
             <input id="room-name-input" name="room-name" type="text" size="100" placeholder="room_name/user_name"><br>
-
-            <input type="password" id="pass" name="password" placeholder="password"><br>
             <input id="room-name-submit" class="btn btn-primary" type="submit">
         </form>
     </div>

@@ -1,29 +1,52 @@
 {% extends 'basic.html' %}
 {% block content %}
-<h1 style="text-align:center;text-decoration: underline;">Your Chats</h1>
+<h1 style="text-align:center;">Your Chats</h1>
 <ul class="list-group">
-
+    {% if page_obj %}
     {% for i in page_obj %}
     <li class="list-group-item text-capitalize"><a href="chat/room1/{{i.name}}" class="text-decoration-none">
-            {% if i.from_user == user.username %}
-            {{i.to_user}}
-            {% elif i.to_user == user.username %}
-            {{i.from_user}}
-            {% endif %}
+                {% for j,k in all_user_inroom.items %}
+                {% if j == i %}
+                    {% for l in k %}
+                    {% if l.user != user %}
+                    {{l.user}}
+                    {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% endfor %}
             <br>
         </a></li>
 
     {% endfor %}
+    {% else %}
+    <p class="text-capitalize text-center">you dont have any personal chats</p>
+    {% endif %}
 </ul>
-<h1 style="text-align:center;text-decoration: underline;">PUBlIC ROOMS</h1>
+<h1 style="text-align:center;">GROUPS</h1>
 <ul class="list-group">
+    {% if private_group %}
+    {% for i in private_group %}
+    <li class="list-group-item text-capitalize"><a href="chat/room1/{{i.name}}" class="text-decoration-none">
+            {{i.name}}<br>
+        </a></li>
 
+    {% endfor %}
+    {% else %}
+    <p class="text-capitalize text-center">Your are not in any groups</p>
+    {% endif %}
+</ul>
+<h1 style="text-align:center;">PUBlIC ROOMS</h1>
+<ul class="list-group">
+    {% if room_public %}
     {% for i in room_public|slice:"0:8" %}
     <li class="list-group-item text-capitalize"><a href="chat/room1/{{i.name}}" class="text-decoration-none">
             {{i.name}}<br>
         </a></li>
 
     {% endfor %}
+    {% else %}
+    <p class="text-capitalize text-center">no public rooms available</p>
+    {% endif %}
 </ul>
 <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">
